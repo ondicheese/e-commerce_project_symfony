@@ -1,0 +1,490 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mongoni | Your account
+{% endblock %}
+
+{% block body %}
+	{% include "page_head/page_head.html.twig" with {'page_name': 'Account'}%}
+	<div
+		class="main_content">
+
+		<!-- START SECTION SHOP -->
+		<div class="section">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-3 col-md-4">
+						<div class="dashboard_menu">
+							<ul class="nav nav-tabs flex-column" role="tablist">
+								<li class="nav-item">
+									<a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true">
+										<i class="ti-layout-grid2"></i>Dashboard</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false">
+										<i class="ti-shopping-cart-full"></i>Orders</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false">
+										<i class="ti-location-pin"></i>My Address</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="true">
+										<i class="ti-id-badge"></i>Account details</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="logout-tab" href="#logout" data-bs-toggle="tab" role="tab" aria-controls="logout" aria-selected="true">
+										<i class="ti-lock"></i>Logout</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-lg-9 col-md-8">
+						<div class="tab-content dashboard_content">
+							<div class="tab-pane fade active show" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+								<div class="card">
+									<div class="card-header">
+										<h3>Dashboard</h3>
+									</div>
+									<div class="card-body">
+										<p>From your account dashboard. you can easily check &amp; view your
+											<a href="javascript:void(0);" onclick="$('#orders-tab').trigger('click')">recent orders</a>, manage your
+											<a href="javascript:void(0);" onclick="$('#address-tab').trigger('click')">shipping and billing addresses</a>
+											and
+											<a href="javascript:void(0);" onclick="$('#account-detail-tab').trigger('click')">edit your password and account details.</a>
+										</p>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane fade" id="logout" role="tabpanel" aria-labelledby="logout-tab">
+								<div class="card">
+									<div class="card-header">
+										<h3>Logout</h3>
+									</div>
+									<div class="card-body">
+										<p>From your account dashboard. you can easily check &amp; view your
+											<a href="javascript:void(0);" onclick="$('#orders-tab').trigger('click')">recent orders</a>, manage your
+											<a href="javascript:void(0);" onclick="$('#address-tab').trigger('click')">shipping and billing addresses</a>
+											and
+											<a href="javascript:void(0);" onclick="$('#account-detail-tab').trigger('click')">edit your password and account details.</a>
+										</p>
+										<button type="submit" class="btn btn-fill-out py-2" name="submit" value="Submit">Logout</button>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+								<div class="card">
+									<div class="card-header">
+										<h3>Orders</h3>
+									</div>
+									<div class="card-body">
+										<div class="table-responsive">
+											<table class="table">
+												<thead>
+													<tr>
+														<th>Order</th>
+														<th>Date</th>
+														<th>Status</th>
+														<th>Total</th>
+														{#<th>Actions</th>#}
+													</tr>
+												</thead>
+												<tbody>
+												{% for order in orders %}
+													<tr>
+														<td>{{ order.id }}</td>
+														<td>{{ order.createdAt |date("m/d/Y")}}</td>
+														<td>{{ order.status }}</td>
+														<td>{{ (order.orderCostTtc / 100) | format_currency('EUR') }} for {{ order.quantity }} item(s)</td>
+														{#<td>
+															<a href="#" class="btn btn-fill-out btn-sm">View</a>
+														</td>#}
+													</tr>
+												{% endfor %}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
+								<div class="card">
+									<div class="card-header">
+										<h3>Account Details</h3>
+									</div>
+									<div class="card-body">
+									{#
+									<button class="btn btn-fill-out">
+									<a href="/account/details">Account details</a>
+									</button>
+									{{ form_start(form) }}
+										{{ form_errors(form) }}
+										{{ form_row(form.full_name) }}
+										{{ form_row(form.email) }}
+										{{ form_row(form.password) }}
+										{{ form_row(form.newPassword) }}
+										{{ form_row(form.submit) }}
+									{{ form_end(form) }}
+									#}
+									
+										<form method="post" name="enq">
+											<div class="row">
+												<div class="form-group col-md-6 mb-3">
+													<label>Fullname
+														<span class="required">*</span>
+													</label>
+													<input required="" class="form-control" name="name" type="text" value={{ app.user.fullName }}>
+												</div>
+												<div class="form-group col-md-12 mb-3">
+													<label>Email Address
+														<span class="required">*</span>
+													</label>
+													<input required="" class="form-control" name="email" type="email" value={{ app.user.email }}>
+												</div>
+												<div class="form-group col-md-12 mb-3">
+													<label>Current Password
+														<span class="required">*</span>
+													</label>
+													<input required="" class="form-control" name="password" type="password">
+												</div>
+												<div class="form-group col-md-12 mb-3">
+													<label>New Password
+														<span class="required">*</span>
+													</label>
+													<input required="" class="form-control" name="npassword" type="password">
+												</div>
+												<div class="form-group col-md-12 mb-3">
+													<label>Confirm Password
+														<span class="required">*</span>
+													</label>
+													<input required="" class="form-control" name="cpassword" type="password">
+												</div>
+												<div  id="flashDetailsForm" class="alert alert-danger d-none"></div>
+												<div class="col-md-12">
+													<button type="submit" class="btn btn-fill-out" name="submit" value="Submit">Save</button>
+												</div>
+											</div>
+										</form>
+										
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+								<div class="row">
+									<div class="action d-flex mb-2">
+										<a href="#" id="add-new-address" class="btn btn-fill-out">Add new</a>
+									</div>
+									<div class="col-lg-12 d-none" id="add-form">
+										<form action="">
+											<div class="row">
+												<div class="form-group col-md-12 mb-3">
+													<label>Address Type<span class="required">*</span>
+													</label>
+													<select name="address_type" class="form-select">
+														<option value="Billing">
+															Billing
+														</option>
+														<option value="Shipping" value="">
+															Shipping
+														</option>
+													</select>
+												</div>
+												<div class="form-group col-md-12 mb-3">
+													<label>Name<span class="required">*</span>
+													</label>
+													<input required class="form-control" name="name" type="text">
+												</div>
+												<div class="form-group col-md-12 mb-3">
+													<label>Fullname<span class="required">*</span>
+													</label>
+													<input required class="form-control" name="client_name" type="text">
+												</div>
+												<div class="form-group col-md-6 mb-3">
+													<label>Street<span class="required">*</span>
+													</label>
+													<input required class="form-control" name="street" type="text">
+												</div>
+												<div class="form-group col-md-6 mb-3">
+													<label>Postcode<span class="required">*</span>
+													</label>
+													<input required class="form-control" name="postcode" type="text">
+												</div>
+												<div class="form-group col-md-6 mb-3">
+													<label>City<span class="required">*</span>
+													</label>
+													<input required class="form-control" name="city" type="text">
+												</div>
+												<div class="form-group col-md-6 mb-3">
+													<label>Country<span class="required">*</span>
+													</label>
+													<select class="form-select" name="state" id="state">
+													
+													</select>
+												</div>
+											
+                                                <div class="d-flex">
+                                                    <button class="btn btn-fill-out">Save</button>
+                                                </div>
+                                            </div>
+										</form>
+									</div>
+									<div class="col-lg-12 d-block" id="address-details">
+                                    <div class="card">
+									<div class="card-header">
+										<h3>Addresses</h3>
+									</div>
+									<div class="card-body">
+										<div class="table-responsive address-content">
+											<table class="table">
+												<thead>
+													<tr>
+														<th>Id</th>
+														<th>Address</th>
+														<th>Actions</th>
+													</tr>
+												</thead>
+												<tbody>
+                                                {% for address in addresses %}
+													<tr>
+														<td>{{address.id}}</td>
+														<td>{{address.street}} {{address.postcode}} {{address.city}} {{address.state}} ({{address.addressType}} Address)</td>
+														<td>
+															<a href="#" 
+															data-addressid="{{address.id}}"
+															data-addressname="{{address.name}}"
+															data-addressclientname="{{address.clientName}}"
+															data-addressid="{{address.id}}"
+															data-addressstreet="{{address.street}}"
+															data-addresspostcode="{{address.postcode}}"
+															data-addresscity="{{address.city}}"
+															data-addressstate="{{address.state}}"
+															data-addresstype="{{address.addressType}}"
+															class="btn btn-fill-out btn-sm edit-address">
+																Edit
+															</a>
+														</td>
+														<td>
+															<a href="#" data-addressid="{{address.id}}" class="btn btn-fill-out btn-sm remove-address">
+																Delete
+															</a>
+														</td>
+													</tr>
+                                                {% endfor %}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- END SECTION SHOP -->
+
+
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+
+	<script>
+		const addAddressBtn = document.getElementById('add-new-address')
+        const addForm = document.getElementById('add-form')
+		const form = document.querySelector("#add-form form")
+        const addressDetails = document.getElementById('address-details')
+		let isUpdating = false
+		let currentAddress
+		//const submitDetailsBtn = document.getElementById("account_details_form_submit")
+		//submitDetailsBtn.classList.remove('btn-primary')
+		//submitDetailsBtn.classList.add('btn-fill-out')
+		const accountDetailsForm = document.querySelector('.card-body form')
+		const divFlash = document.getElementById('flashDetailsForm')
+		divFlash.innerHTML = ""
+		
+
+        const displayAddress = (addresses) => {
+            const tbody = document.querySelector('.address-content tbody')
+			isUpdating = false
+			currentAddress = undefined
+            if (tbody) {
+                tbody.innerHTML = ""
+                addresses.forEach(address => {
+                    tbody.innerHTML += `
+                    <tr>
+						<td>${address.id}</td>
+						<td>
+                            ${address.street} ${address.postcode} ${address.city} ${address.state} (${address.addressType} Address)
+                        </td>
+						<td>
+						    <a href="#"
+							data-addressname="${address.name}"
+							data-addressclientname="${address.clientName}"
+							data-addressid="${address.id}"
+							data-addressstreet="${address.street}"
+							data-addresspostcode="${address.postcode}"
+							data-addresscity="${address.city}"
+							data-addressstate="${address.state}"
+							data-addresstype="${address.addressType}" 
+							class="btn btn-fill-out btn-sm edit-address">
+								Edit
+							</a>
+							<a href="#" data-addressid="${address.id}" class="btn btn-fill-out btn-sm remove-address">
+								Delete
+							</a>
+						</td>
+					</tr>
+                    `
+                })
+
+                addForm.classList.add('d-none')
+                addressDetails.classList.remove("d-none")
+				addAddressBtn.innerHTML = "Add New"
+
+				addEvent()
+            }
+        }
+
+		const initStates = async () => {
+			const select = document.querySelector("#add-form form select#state")
+			const response = await fetch("/assets/data/countries.json")
+			const countries = await response.json()
+			select.innerHTML = ""
+
+			countries.forEach(country => {
+				select.innerHTML += `
+					<option value='${country.alpha2Code}'> ${country.name} </option>
+				`
+			})
+		}
+
+		const addEvent = () => {
+			const deleteAddressBtns = document.querySelectorAll('.remove-address')
+			const editAddressBtns = document.querySelectorAll('.edit-address')
+
+			deleteAddressBtns.forEach((deleteAddressBtn) => {
+				deleteAddressBtn.addEventListener('click', async (event) => {
+					event.preventDefault()
+					const element = event.target
+					const addressId = element.dataset.addressid
+
+					if (addressId) {
+						const response = await fetch("/api/address/" + addressId, {
+							method: "DELETE"
+							})
+						const result = await response.json()
+						
+						if (result.isSuccess) {
+							const addresses = result.data
+							displayAddress(addresses)
+						}
+					}
+				})
+			})
+
+			editAddressBtns.forEach(editAddressBtn => {
+				editAddressBtn.addEventListener('click', async (event) => {
+					event.preventDefault()
+					isUpdating = true
+					currentAddress = Object.assign({}, event.target.dataset)
+					addAddressBtn.click()
+					
+					document.getElementsByName('name')[0].value = currentAddress.addressname
+					document.getElementsByName('client_name')[0].value = currentAddress.addressclientname
+					document.getElementsByName('address_type')[0].value = currentAddress.addresstype
+					document.getElementsByName('street')[0].value = currentAddress.addressstreet
+					document.getElementsByName('city')[0].value = currentAddress.addresscity
+					document.getElementsByName('postcode')[0].value = currentAddress.addresspostcode
+					document.getElementsByName('state')[0].value = currentAddress.addressstate
+
+					form.querySelector('button').innerHTML = "Update"
+				})
+			})
+		}
+
+        addAddressBtn.addEventListener('click', (event) => {
+            event.preventDefault()
+            if (addForm.classList.contains("d-none")) {
+                addForm.classList.remove('d-none')
+                addressDetails.classList.add("d-none")
+                addAddressBtn.innerHTML = "Cancel"
+				form.querySelector('button').innerHTML = "Add New"
+				form.reset()
+            } else {
+                addForm.classList.add("d-none")
+                addressDetails.classList.remove("d-none")
+                addAddressBtn.innerHTML = "Add New"
+            }
+        })
+
+		addForm.addEventListener("submit", async (event) => {
+			event.preventDefault()
+			const form = document.querySelector('#add-form form')
+			const formData = new FormData(form)
+
+			if (isUpdating) {
+				/*var object = {}
+
+				formData.forEach((value, key) => {
+					object[key] = value
+				})
+				var json = JSON.stringify(object)*/
+
+				const response = await fetch("/api/address/" + currentAddress.addressid, {
+					method: "POST",
+					body: formData
+				})
+				const result = await response.json()
+				
+				if (result.isSuccess) {
+					const addresses = result.data
+					displayAddress(addresses)
+				}
+				} else {
+					const response = await fetch("/api/address", {
+						method: "POST",
+						body: formData
+					})
+
+					const result = await response.json()
+
+					if (result.isSuccess) {
+						const addresses = result.data
+						displayAddress(addresses)
+					}
+					}
+			})
+
+		accountDetailsForm.addEventListener('submit', async (event) => {
+			event.preventDefault()
+			
+			const accountDetailsNewFormData = new FormData(accountDetailsForm)
+			console.log(accountDetailsNewFormData)
+			const response = await fetch("/account/details", {
+					method: "POST",
+					body: accountDetailsNewFormData
+				})
+				console.log('ok')
+			const result = await response.json()
+			
+			divFlash.classList.remove('d-none')
+			divFlash.innerHTML = result.message
+			if (result.success) {
+				divFlash.classList.remove('alert-danger')
+				divFlash.classList.add('alert-success')
+				window.location.href = window.location.origin + '/account'
+			} else {
+				if (!divFlash.classList.contains('alert-danger')) {
+					divFlash.classList.add('alert-danger')
+					divFlash.classList.remove('alert-success')
+				}
+			}
+		})
+		
+		addEvent()
+		initStates()
+	</script>
+	
+{% endblock %}

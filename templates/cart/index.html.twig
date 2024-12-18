@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mongoni | Shopping Cart
+{% endblock %}
+
+{% block body %}
+	{% include "page_head/page_head.html.twig" with { 'page_name': 'Cart' }  %}
+	<div class="main_content cart_content" data-cart="{{ cart_json }}" data-carriers ="{{ carriers_json }}">
+		<div class="section">
+			<div class="container">
+				<div class="row">
+					<div class="col-12">
+						<div class="table-responsive shop_cart_table">
+							<table class="table">
+								<thead>
+									<tr>
+										<th class="product-thumbnail">&nbsp;</th>
+										<th class="product-name">Product</th>
+										<th class="product-price">Price</th>
+										<th class="product-quantity">Quantity</th>
+										<th class="product-tax">Tax (VAT)</th>
+										<th class="product-subtotal-excl-taxes">Total excl taxes</th>
+										<th class="product-subtotal-incl-taxes">Total incl taxes</th>
+										<th class="product-remove">Remove</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12">
+						<div class="medium_divider"></div>
+						<div class="divider center_icon">
+							<i class="ti-shopping-cart-full"></i>
+						</div>
+						<div class="medium_divider"></div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="border p-3 p-md-4 carrier-form">
+							<div class="heading_s1 mb-3">
+								<h6>Carriers</h6>
+                            </div>
+								<form action="/cart/carrier" method="POST">
+									<select class="form-select" name="carrierId" id="carrierId"></select>
+									{# <button class="btn btn-fill-out mt-1">Update</button> #}
+								</form>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="border p-3 p-md-4">
+								<div class="heading_s1 mb-3">
+									<h6>Cart Totals</h6>
+								</div>
+								<div class="table-responsive">
+									<table class="table">
+										<tbody>
+											<tr>
+												<td class="cart_total_label">Cart subtotal excl taxes</td>
+												<td class="cart_sub_total_amount_ht"></td>
+											</tr>
+											<tr>
+												<td class="cart_total_label">Tax (VAT)</td>
+												<td class="cart_tax"></td>
+											</tr>
+											<tr>
+												<td class="cart_total_label">Cart subtotal incl VAT</td>
+												<td class="cart_sub_total_amount_ttc"></td>
+											</tr>
+											<tr>
+											<tr>
+												<td class="cart_total_label">Shipping</td>
+												<td class="cart_shipping_total_amount"></td>
+											</tr>
+											<tr>
+												<td class="cart_total_label">Total</td>
+												<td class="cart_total_amount">
+													<strong></strong>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<a routerlink="/checkout" class="btn btn-fill-out" ng-reflect-router-link="/checkout" href="/checkout">Proceed To CheckOut</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+{% endblock %}

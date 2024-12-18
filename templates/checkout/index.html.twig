@@ -1,0 +1,501 @@
+{% extends 'default.html.twig' %}
+
+{% block title %}Mongoni | Checkout
+{% endblock %}
+
+{% block stylesheets %}
+	<script src="https://js.stripe.com/v3/"></script>
+	<script src="https://www.paypal.com/sdk/js?client-id={{ paypalPublicKey }}&amp;buyer-country=FR&amp;currency=EUR&amp;components=buttons&amp;enable-funding=venmo" data-sdk-integration-source="developer-studio"></script>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="/assets/css/stripe.css">
+{% endblock %}
+
+{% block body %}
+	{#{% include "page_head/page_head.html.twig" with {'page_name': 'Checkout'}%}#}
+	<div class="main_content" data-stripe_public_key="{{ stripePublicKey }}" data-paypal_public_key="{{ paypalPublicKey }}" data-cart="{{ cart_json }}" data-orderid="{{ orderId }}">
+		<div class="section">
+			<div class="container">
+				<div
+					class="row"><!--
+											<div class="col-lg-6">
+												<div class="toggle_info">
+													<span>
+														<i class="fas fa-user"></i>Returning customer?
+														<a href="#loginform" data-bs-toggle="collapse" aria-expanded="false" class="collapsed">Click here to login</a>
+													</span>
+												</div>
+												<div id="loginform" class="panel-collapse collapse login_form">
+													<div class="panel-body">
+														<p>If you have shopped with us before, please enter your details below. If you are a new customer, please proceed to the Billing &amp; Shipping section.</p>
+														<form novalidate="" method="post" class="ng-untouched ng-pristine ng-valid">
+															<div class="form-group mb-3"><input type="text" required="" name="email" placeholder="Username Or Email" class="form-control"></div>
+															<div class="form-group mb-3"><input required="" type="password" name="password" placeholder="Password" class="form-control"></div>
+															<div class="login_footer form-group mb-3">
+																<div class="chek-form">
+																	<div class="custome-checkbox"><input type="checkbox" name="checkbox" id="remember" value="" class="form-check-input"><label for="remember" class="form-check-label">
+																			<span>Remember me</span>
+																		</label>
+																	</div>
+																</div>
+															</div>
+															<div class="form-group mb-3">
+																<button type="submit" name="login" class="btn btn-fill-out btn-block">Log in</button>
+															</div>
+														</form>
+													</div>
+												</div>
+											</div>
+											
+											<div class="col-lg-6">
+												<div class="toggle_info">
+													<span>
+														<i class="fas fa-tag"></i>Have a coupon?
+														<a href="#coupon" data-bs-toggle="collapse" aria-expanded="false" class="collapsed">Click here to enter your code</a>
+													</span>
+												</div>
+												<div id="coupon" class="panel-collapse collapse coupon_form">
+													<div class="panel-body">
+														<p>If you have a coupon code, please apply it below.</p>
+														<div class="coupon field_form input-group"><input type="text" value="" placeholder="Enter Coupon Code.." class="form-control">
+															<div class="input-group-append">
+																<button type="submit" class="btn btn-fill-out btn-sm">Apply Coupon</button>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											-->
+				</div>
+				<div
+					class="row"><!--
+											<div class="col-12">
+												<div class="medium_divider"></div>
+												<div class="divider center_icon">
+													<i class="linearicons-credit-card"></i>
+												</div>
+												<div class="medium_divider"></div>
+											</div>
+										-->
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="heading_s1">
+							<h4>Billing Details</h4>
+							<select class="form-select" name="billing_addresses" id="billing_addresses">
+								<option value="">--- Billing Addresses ---</option>
+								{% for address in addresses %}
+									{% if address.addressType is same as "Billing" %}
+										<option value="{{ address.clientName }}, {{ address.street }} {{ address.postcode }} {{ address.city }} {{ address.state }}">
+											{{ address.name }}
+											-
+											{{ address.clientName }},
+											{{ address.street }}
+											{{ address.postcode }}
+											{{ address.city }}
+											{{ address.state }}
+										</option>
+									{% endif %}
+
+								{% endfor %}
+							</select>
+						</div>
+						<div class="heading_s1">
+							<h4>Delivery Address</h4>
+							<select class="form-select" name="shipping_addresses" id="shipping_addresses">
+								<option value="">--- Shipping Addresses ---</option>
+								{% for address in addresses %}
+									{% if address.addressType is same as "Shipping" %}
+										<option value="{{ address.clientName }}, {{ address.street }} {{ address.postcode }} {{ address.city }} {{ address.state }}">
+											{{ address.name }}
+											-
+											{{ address.clientName }},
+											{{ address.street }}
+											{{ address.postcode }}
+											{{ address.city }}
+											{{ address.state }}
+										</option>
+									{% endif %}
+								{% endfor %}
+							</select>
+						</div>
+						<div class="heading_s1">
+							<h4>Comments</h4>
+							<textarea name="comments" class="form-control" rows="10" cols="50"></textarea>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="order_review">
+							<div class="heading_s1">
+								<h4>Your Orders</h4>
+							</div>
+							<div class="table-responsive order_table">
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Product</th>
+											<th>Total</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for item in cart.items %}
+											<tr>
+												<td><img src="assets/images/products/{{item.product.imageUrls[0]}}" alt=" {{ item.product.slug }}" width="40" height="40"/>
+													{{ item.product.name }}
+													<span class="product-qty">
+														({{ item.quantity }}
+														x
+														{{ (item.product.salePrice / 100) | format_currency('EUR') }})</span>
+												</td>
+												<td>{{ item.sub_total | format_currency('EUR') }}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+									<tfoot>
+										<tr>
+											<th>SubTotal excl VAT</th>
+											<td class="product-subtotal">{{ cart.sub_total_ht | format_currency('EUR') }}</td>
+										</tr>
+										<tr>
+											<th>Tax (VAT)</th>
+											<td class="product-subtotal">{{ cart.tax | format_currency('EUR') }}</td>
+										</tr>
+										<tr>
+											<th>SubTotal incl VAT</th>
+											<td class="product-subtotal">{{ cart.sub_total | format_currency('EUR') }}</td>
+										</tr>
+										<tr>
+											<th>Shipping</th>
+											<td class="product-subtotal">{{ (cart.carrier.price) | format_currency('EUR') }}</td>
+										</tr>
+										<tr>
+											<th>Total</th>
+											<td class="product-subtotal">{{ cart.sub_total_with_carrier | format_currency('EUR') }}</td>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+							<div class="payment_method"></div>
+							<div class="payment-button d-none">
+								<a href="#" class="btn btn-fill-out btn-block" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Pay now ({{ cart.sub_total_with_carrier | format_currency('EUR') }})</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-body">
+				<div class="payment-methods d-flex gap-2 justify-content-center align-items-center">
+					Stripe
+					<i class="fa-solid fa-toggle-off"></i>
+					Paypal
+				</div>
+				<div id="stripe-method">
+					<form id="payment-form">
+						<div
+							id="payment-element"><!--Stripe.js injects the Payment Element-->
+						</div>
+						<button id="submit">
+							<div class="spinner hidden" id="spinner"></div>
+							<span id="button-text">Pay now</span>
+						</button>
+						<div id="payment-message" class="hidden"></div>
+					</form>
+				</div>
+				<div id="paypal-method"></div>
+					<!-- Display a payment form -->
+					<div id="paypal-button-container" class="d-none"></div>
+					<p id="result-message"></p>
+				</div>
+				<div class="modal-footer">
+        			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      			</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascipts %}
+	<script>
+		const paymentMethods = document.querySelector('.payment-methods i');
+		const paypalMethodComponent = document.querySelector('#paypal-button-container')
+		const stripeMethodComponent = document.querySelector('#stripe-method')
+		let stripeMethod = true
+		let paypalMethod = false
+
+		const mainContent = document.querySelector('.main_content');
+		let cart = JSON.parse(mainContent?.dataset?.cart || [])
+		const stripePublicKey = mainContent?.dataset?.stripe_public_key || ""
+		const paypalPublicKey = mainContent?.dataset?.paypal_public_key || ""
+		console.log('paypal :', paypalPublicKey)
+		const orderId = mainContent?.dataset?.orderid || ""
+		let billing_address
+		let shipping_address
+		let comment
+		let displayPayBtn = false
+console.log(cart)
+		const billing_addresses_select = document.querySelector('select[name="billing_addresses"]')
+		const shipping_addresses_select = document.querySelector('select[name="shipping_addresses"]')
+		const comment_textarea = document.querySelector('textarea')
+		const payBtn = document.querySelector('.payment-button')
+
+		const updatePayBtn = () => {
+		displayPayBtn = (!! billing_address) && (!! shipping_address)
+		displayPayBtn ? payBtn.classList.remove('d-none') : payBtn.classList.add('d-none')
+		} 
+
+		paymentMethods.addEventListener('click', (event) => {
+			stripeMethod = !stripeMethod
+			paypalMethod = !paypalMethod
+
+			if (stripeMethod) {
+				paymentMethods.className = "fa-solid fa-toggle-off"
+				stripeMethodComponent.classList.remove('d-none')
+				paypalMethodComponent.classList.add('d-none')
+			} else {
+				paymentMethods.className = "fa-solid fa-toggle-on"
+				paypalMethodComponent.classList.remove('d-none')
+				stripeMethodComponent.classList.add('d-none')
+			}
+		})
+		
+		billing_addresses_select.addEventListener('change', (event) => {
+		billing_address = event.target.value
+		updatePayBtn()
+		})
+
+		shipping_addresses_select.addEventListener('change', (event) => {
+		shipping_address = event.target.value
+		updatePayBtn()
+		})
+
+		comment_textarea.addEventListener('change', (event) => {
+		comment = event.target.value
+		updatePayBtn()
+		})
+
+		payBtn.addEventListener('click', async (event) => {
+			let formData = new FormData()
+			formData.append('billing_address', billing_address)
+			formData.append('shipping_address', shipping_address)
+			formData.append('orderId', orderId)
+			
+			const response = await fetch('/api/order', {
+				method: 'POST',
+				body: formData
+			})
+			const result = await response.json()
+			console.log(result)
+		})
+
+		//\\\\\\\\\\\\\\\\\\\\ Stripe component ////////////////////////\\
+		//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ ////////////////////////////////\\
+		// This is your test publishable API key.
+		const stripe = Stripe(stripePublicKey);
+
+		// The items the customer wants to buy
+		const items = cart.items;
+		
+		let elements;
+
+		initialize();
+
+		document
+		.querySelector("#payment-form")
+		.addEventListener("submit", handleSubmit);
+
+		// Fetches a payment intent and captures the client secret
+		async function initialize() {
+		const { clientSecret, dpmCheckerLink } = await fetch("/api/stripe/payment-intent/"+orderId, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({}),
+		}).then((r) => r.json());
+
+		elements = stripe.elements({ clientSecret });
+
+		const paymentElementOptions = {
+			layout: "tabs",
+		};
+
+		const paymentElement = elements.create("payment", paymentElementOptions);
+		paymentElement.mount("#payment-element");
+
+		// [DEV] For demo purposes only
+		/*
+		setDpmCheckerLink(dpmCheckerLink);
+		*/
+		}
+		
+
+		async function handleSubmit(e) {
+		e.preventDefault();
+		setLoading(true);
+
+		const { error } = await stripe.confirmPayment({
+			elements,
+			confirmParams: {
+			// Make sure to change this to your payment completion page
+			return_url: window.location.origin + "/stripe/payment/success",
+			},
+		});
+
+		// This point will only be reached if there is an immediate error when
+		// confirming the payment. Otherwise, your customer will be redirected to
+		// your `return_url`. For some payment methods like iDEAL, your customer will
+		// be redirected to an intermediate site first to authorize the payment, then
+		// redirected to the `return_url`.
+		if (error.type === "card_error" || error.type === "validation_error") {
+			showMessage(error.message);
+		} else {
+			showMessage("An unexpected error occurred.");
+		}
+
+		setLoading(false);
+		}
+
+		// ------- UI helpers -------
+
+		function showMessage(messageText) {
+		const messageContainer = document.querySelector("#payment-message");
+
+		messageContainer.classList.remove("hidden");
+		messageContainer.textContent = messageText;
+
+		setTimeout(function () {
+			messageContainer.classList.add("hidden");
+			messageContainer.textContent = "";
+		}, 4000);
+		}
+
+		// Show a spinner on payment submission
+		function setLoading(isLoading) {
+		if (isLoading) {
+			// Disable the button and show a spinner
+			document.querySelector("#submit").disabled = true;
+			document.querySelector("#spinner").classList.remove("hidden");
+			document.querySelector("#button-text").classList.add("hidden");
+		} else {
+			document.querySelector("#submit").disabled = false;
+			document.querySelector("#spinner").classList.add("hidden");
+			document.querySelector("#button-text").classList.remove("hidden");
+		}
+		}
+
+		/*
+		function setDpmCheckerLink(url) {
+		document.querySelector("#dpm-integration-checker").href = url;
+		}
+		*/
+	</script>
+	<script>
+		//\\\\\\\\\\\\\\\\\\\\ Paypal component ////////////////////////\\
+		//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ ////////////////////////////////\\
+		window.paypal
+    .Buttons({
+        style: {
+            shape: "rect",
+            layout: "vertical",
+            color: "gold",
+            label: "paypal",
+        },
+        message: {
+            amount: 100,
+        } ,
+
+        async createOrder() {
+            try {
+                const response = await fetch("/api/paypal/orders", {
+                    method: "POST",
+                    // use the "body" param to optionally pass additional order information
+                    // like product ids and quantities
+                    body: orderId
+                });
+
+                const orderData = await response.json();
+
+                if (orderData.id) {
+                    return orderData.id;
+                }
+                const errorDetail = orderData?.details?.[0];
+                const errorMessage = errorDetail
+                    ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
+                    : JSON.stringify(orderData);
+
+                throw new Error(errorMessage);
+            } catch (error) {
+                console.error(error);
+                // resultMessage(`Could not initiate PayPal Checkout...<br><br>${error}`);
+            }
+        } ,
+
+        async onApprove(data, actions) {
+            try {
+                const response = await fetch(
+                    `/api/orders/${data.orderID}/capture`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                const orderData = await response.json();
+				console.log(orderData)
+                // Three cases to handle:
+                //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                //   (2) Other non-recoverable errors -> Show a failure message
+                //   (3) Successful transaction -> Show confirmation or thank you message
+
+                const errorDetail = orderData?.details?.[0];
+
+                if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
+                    // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                    // recoverable state, per
+                    // https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
+                    return actions.restart();
+                } else if (errorDetail) {
+                    // (2) Other non-recoverable errors -> Show a failure message
+                    throw new Error(
+                        `${errorDetail.description} (${orderData.debug_id})`
+                    );
+                } else if (!orderData.purchase_units) {
+                    throw new Error(JSON.stringify(orderData));
+                } else {
+                    // (3) Successful transaction -> Show confirmation or thank you message
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+                    const transaction =
+                        orderData?.purchase_units?.[0]?.payments
+                            ?.captures?.[0] ||
+                        orderData?.purchase_units?.[0]?.payments
+                            ?.authorizations?.[0];
+							window.location.href = window.location.origin + '/paypal/payment/success'
+                    /*resultMessage(
+                        `Transaction ${transaction.status}: ${transaction.id}<br>
+          <br>See console for all available details`
+                    );*/
+                    /*console.log(
+                        "Capture result",
+                        orderData,
+                        JSON.stringify(orderData, null, 2)
+                    );*/
+                }
+            } catch (error) {
+                console.error(error);
+                resultMessage(
+                    `Sorry, your transaction could not be processed...<br><br>${error}`
+                );
+            }
+        } ,
+    })
+    .render("#paypal-button-container"); 
+
+	</script>
+{% endblock %}
